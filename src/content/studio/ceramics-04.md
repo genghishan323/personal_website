@@ -7,6 +7,6 @@ image: ./ceramics-04.jpg
 alt: A cylindrical vessel with a smoky, mottled surface.
 # caption:
 # location:
-# year:
+year: 2024
 teaser: false
 ---

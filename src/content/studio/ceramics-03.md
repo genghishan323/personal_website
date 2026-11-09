@@ -7,6 +7,6 @@ image: ./ceramics-03.jpg
 alt: A round, wide-shouldered jar with a mottled, ash-toned surface.
 # caption:
 # location:
-# year:
+year: 2025
 teaser: false
 ---

@@ -7,6 +7,6 @@ image: ./ceramics-01.jpg
 alt: A tall white vessel with brown smoke-fired markings and a patchwork surface.
 # caption:
 # location:
-# year:
+year: 2024
 teaser: true
 ---

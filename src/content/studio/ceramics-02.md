@@ -7,6 +7,6 @@ image: ./ceramics-02.jpg
 alt: A small cup with a smoky brown and blue-green textured surface.
 # caption:
 # location:
-# year:
+year: 2024
 teaser: false
 ---
