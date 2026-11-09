@@ -8,8 +8,7 @@
   order: 1
   title: Water Markets and Farm Dynamics in the Murray–Darling Basin
   status: Work in progress · draft coming 2027
-  updated: 2026-10-25
-  # DRAFT — to revise. Bracketed parts need your input.
+  updated: 2026-11-08
   abstract: >-
     Australia's southern Murray–Darling Basin runs one of the world's largest
     water markets. Farmers trade both seasonal allocations and permanent
@@ -18,8 +17,8 @@
     under uncertain allocations, with perennial crops that must be watered to
     survive drought. Prices for allocations and entitlements clear in
     equilibrium. I estimate the model with field-level land-use data from CSIRO
-    and Victorian entitlement market records, and use it to measure [the
-    counterfactual question].
+    and Victorian entitlement market records, and use it to measure the
+    producer surplus of different water market designs.
   links: []
 
 - id: wisconsin-lawsuits
@@ -42,28 +41,3 @@
       url: https://www.healthaffairs.org/doi/abs/10.1377/hlthaff.2021.01130
     - label: WSJ
       url: https://www.wsj.com/health/healthcare/hospitals-in-wisconsin-pursued-medical-debt-collection-widely-but-unevenly-study-finds-11638825132
-
-- id: ra-hsiao
-  section: ra
-  order: 1
-  title: Demand for critical minerals; political economy of the energy transition
-  coauthors:
-    - name: Allan Hsiao
-      url: https://allanhsiao.com/
-  venue: Stanford · 2025–
-
-- id: ra-cooper
-  section: ra
-  order: 2
-  title: Vertical integration in healthcare; medical debt litigation
-  coauthors:
-    - name: Zack Cooper
-  venue: Yale · 2020–2024
-
-- id: ra-kortum
-  section: ra
-  order: 3
-  title: International carbon taxation with intermediate goods
-  coauthors:
-    - name: Samuel Kortum
-  venue: Yale · 2023
