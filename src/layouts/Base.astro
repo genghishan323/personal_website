@@ -1,0 +1,139 @@
+---
+import '@fontsource-variable/source-serif-4';
+import '@fontsource-variable/source-serif-4/wght-italic.css';
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+import { getEntry } from 'astro:content';
+
+interface Props {
+  title?: string;
+  description?: string;
+  theme?: 'research' | 'studio';
+}
+
+const profile = await getEntry('profile', 'profile');
+if (!profile) throw new Error('Missing src/content/profile.md');
+const p = profile.data;
+
+const { title, description = p.agenda, theme = 'research' } = Astro.props;
+const pageTitle = title ? `${title} · ${p.name}` : `${p.name} · ${p.title}, ${p.department}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const hasTeaching = p.teaching.length > 0;
+const built = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: p.name,
+  jobTitle: p.title,
+  affiliation: { '@type': 'CollegeOrUniversity', name: p.department },
+  email: `mailto:${p.email}`,
+  url: Astro.site?.toString(),
+  sameAs: p.links.map((l) => l.url),
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content={theme === 'studio' ? '#0f1114' : '#faf8f4'} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
+  </head>
+  <body class={theme === 'studio' ? 'theme-studio' : 'theme-research'}>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header wrap">
+      <a class="wordmark" href="/" aria-current={path === '/' ? 'page' : undefined}>{p.name}</a>
+      <nav aria-label="Main">
+        <a href="/#research">Research</a>
+        {hasTeaching && <a href="/#teaching">Teaching</a>}
+        <a href={p.cv.file}>CV</a>
+        <a href="/studio" aria-current={path === '/studio' ? 'page' : undefined}>Studio</a>
+      </nav>
+    </header>
+
+    <main id="main" class="wrap fade-in">
+      <slot />
+    </main>
+
+    <footer class="site-footer wrap">
+      <span>© {new Date().getFullYear()} {p.name}</span>
+      <span aria-hidden="true">·</span>
+      <a href={`mailto:${p.email}`}>{p.email}</a>
+      <span aria-hidden="true">·</span>
+      <span>Last updated {built}</span>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    font-family: var(--sans);
+  }
+
+  .wordmark {
+    font-family: var(--serif);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.005em;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+  }
+
+  nav a {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 4px 0;
+  }
+
+  nav a:hover,
+  nav a[aria-current='page'] {
+    color: var(--accent);
+  }
+
+  .site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin-top: 72px;
+    padding-top: 24px;
+    padding-bottom: 40px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .site-footer a {
+    color: var(--muted);
+  }
+</style>

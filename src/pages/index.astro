@@ -1,0 +1,435 @@
+---
+import Base from '../layouts/Base.astro';
+import Media from '../components/Media.astro';
+import { getCollection, getEntry, render } from 'astro:content';
+
+const profile = await getEntry('profile', 'profile');
+if (!profile) throw new Error('Missing src/content/profile.md');
+const p = profile.data;
+const { Content: Bio } = await render(profile);
+
+const research = (await getCollection('research')).sort((a, b) => a.data.order - b.data.order);
+const wip = research.filter((r) => r.data.section === 'wip');
+const pubs = research.filter((r) => r.data.section === 'publication');
+const ra = research.filter((r) => r.data.section === 'ra');
+
+const studio = (await getCollection('studio')).sort((a, b) => a.data.order - b.data.order);
+const teaser = (['photography', 'ceramics', 'sound'] as const).map(
+  (m) => studio.find((s) => s.data.medium === m && s.data.teaser) ?? studio.find((s) => s.data.medium === m),
+);
+const mediumName = { photography: 'Photography', ceramics: 'Ceramics', sound: 'Sound design' };
+// Decorative waveform for the sound tile (fixed, not from the audio).
+const waveBars = Array.from({ length: 30 }, (_, i) => 4 + Math.round(26 * Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.23))));
+
+const monthYear = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const initials = p.name
+  .split(' ')
+  .map((w) => w[0])
+  .join('');
+---
+
+<Base>
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="name">
+    <div class="hero-text">
+      <h1 id="name">{p.name}</h1>
+      <p class="role">{p.title}, {p.department}</p>
+      <p class="agenda">{p.agenda}</p>
+      <p class="contact meta">
+        <a href={`mailto:${p.email}`}>{p.email}</a>
+        {
+          p.links.map((l) => (
+            <>
+              <span aria-hidden="true"> · </span>
+              <a href={l.url}>{l.label}</a>
+            </>
+          ))
+        }
+      </p>
+    </div>
+    <div class="headshot">
+      {
+        p.headshot ? (
+          <Media image={p.headshot} alt={`Portrait of ${p.name}`} aspect="4 / 5" sizes="220px" eager />
+        ) : (
+          <div class="headshot-ph" role="img" aria-label="Headshot placeholder">
+            {initials}
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="bio prose" aria-label="About">
+    <Bio />
+  </section>
+
+  <!-- Research -->
+  <section id="research" class="section" aria-labelledby="research-h">
+    <h2 id="research-h" class="label">Research</h2>
+
+    {
+      wip.length > 0 && (
+        <>
+          <h3 class="sublabel">Work in progress</h3>
+          {wip.map((r) => (
+            <article class="card prose">
+              <h4 class="entry-title">{r.data.title}</h4>
+              {r.data.coauthors.length > 0 && (
+                <p class="meta">
+                  with{' '}
+                  {r.data.coauthors.map((c, i) => (
+                    <>
+                      {i > 0 && ', '}
+                      {c.url ? <a href={c.url}>{c.name}</a> : c.name}
+                    </>
+                  ))}
+                </p>
+              )}
+              {r.data.status && <p class="status">{r.data.status}</p>}
+              {r.data.abstract && <p class="abstract">{r.data.abstract}</p>}
+              <p class="meta links">
+                {r.data.links.map((l) => (
+                  <a href={l.url}>[{l.label}]</a>
+                ))}
+                {r.data.updated && <span>Updated {monthYear(r.data.updated)}</span>}
+              </p>
+            </article>
+          ))}
+        </>
+      )
+    }
+
+    {
+      pubs.length > 0 && (
+        <>
+          <h3 class="sublabel">Publications</h3>
+          <ol class="entries prose">
+            {pubs.map((r) => (
+              <li class="entry">
+                <h4 class="entry-title">
+                  {r.data.links[0] ? <a href={r.data.links[0].url}>{r.data.title}</a> : r.data.title}
+                </h4>
+                <p class="meta">
+                  {r.data.coauthors.length > 0 && <>with {r.data.coauthors.map((c) => c.name).join(', ')} · </>}
+                  <em>{r.data.venue}</em>
+                  {r.data.year && <>, {r.data.year}</>}
+                </p>
+                {r.data.abstract ? (
+                  <details>
+                    <summary class="meta links">
+                      <span class="toggle">[Abstract]</span>
+                      {r.data.links.map((l) => (
+                        <a href={l.url}>[{l.label}]</a>
+                      ))}
+                    </summary>
+                    <p class="abstract">{r.data.abstract}</p>
+                  </details>
+                ) : (
+                  <p class="meta links">
+                    {r.data.links.map((l) => (
+                      <a href={l.url}>[{l.label}]</a>
+                    ))}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ol>
+        </>
+      )
+    }
+
+    {
+      ra.length > 0 && (
+        <>
+          <h3 class="sublabel">Research assistance</h3>
+          <ul class="ra prose">
+            {ra.map((r) => (
+              <li>
+                <span class="ra-who">
+                  {r.data.coauthors.map((c) => (c.url ? <a href={c.url}>{c.name}</a> : c.name))}
+                </span>
+                <span class="ra-what">{r.data.title}</span>
+                <span class="meta">{r.data.venue}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+  </section>
+
+  <!-- Teaching (only when profile.md lists some) -->
+  {
+    p.teaching.length > 0 && (
+      <section id="teaching" class="section" aria-labelledby="teaching-h">
+        <h2 id="teaching-h" class="label">Teaching</h2>
+        <ul class="ra prose">
+          {p.teaching.map((t) => (
+            <li>
+              <span class="ra-who">{t.course}</span>
+              <span class="ra-what">{t.role}</span>
+              <span class="meta">
+                {t.term}
+                {t.note && <> · {t.note}</>}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <!-- CV -->
+  <section id="cv" class="section" aria-labelledby="cv-h">
+    <h2 id="cv-h" class="label">CV</h2>
+    <p class="prose">
+      <a href={p.cv.file}>Curriculum vitae</a>
+      <span class="meta"> (PDF, updated {monthYear(p.cv.updated)})</span>
+    </p>
+  </section>
+
+  <!-- Studio teaser -->
+  <section id="studio" class="section" aria-labelledby="studio-h">
+    <h2 id="studio-h" class="label">Studio</h2>
+    <p class="prose">
+      {p.studioTeaser} <a href="/studio">See the Studio →</a>
+    </p>
+    <ul class="teaser">
+      {
+        teaser.map(
+          (s) =>
+            s && (
+              <li>
+                <a href={`/studio#${s.data.medium}`}>
+                  {!s.data.image && s.data.medium === 'sound' ? (
+                    <div class="wave" role="img" aria-label="Sound design">
+                      <svg viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true">
+                        {waveBars.map((h, i) => (
+                          <rect x={i * 4 + 1} y={20 - h / 2} width="2" height={h} rx="1" />
+                        ))}
+                      </svg>
+                    </div>
+                  ) : (
+                    <Media image={s.data.image} alt={s.data.alt} aspect="4 / 3" label={mediumName[s.data.medium]} showLabel={false} />
+                  )}
+                  <span class="meta">{mediumName[s.data.medium]}</span>
+                </a>
+              </li>
+            ),
+        )
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 32px 0 8px;
+  }
+
+  .headshot {
+    order: -1;
+    width: 132px;
+  }
+
+  @media (min-width: 720px) {
+    .hero {
+      grid-template-columns: minmax(0, var(--measure)) 200px;
+      justify-content: space-between;
+      gap: 48px;
+      padding-top: 56px;
+    }
+
+    .headshot {
+      order: 0;
+      width: 200px;
+    }
+  }
+
+  .headshot-ph {
+    aspect-ratio: 4 / 5;
+    display: grid;
+    place-items: center;
+    background: var(--tile);
+    border-radius: 2px;
+    font-family: var(--serif);
+    font-size: 40px;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-size: clamp(34px, 6vw, 46px);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+
+  .role {
+    font-family: var(--sans);
+    font-size: 15px;
+    color: var(--muted);
+    margin: 10px 0 24px;
+  }
+
+  .agenda {
+    font-size: clamp(20px, 2.6vw, 23px);
+    line-height: 1.45;
+    margin-bottom: 20px;
+  }
+
+  .contact a {
+    color: var(--accent);
+  }
+
+  .bio {
+    padding: 8px 0 40px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 24px;
+    margin-bottom: 8px;
+  }
+
+  .entry-title {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 0 0 6px;
+  }
+
+  .entry-title a {
+    color: var(--ink);
+    text-decoration-color: var(--rule);
+  }
+
+  .entry-title a:hover {
+    color: var(--accent);
+  }
+
+  .status {
+    font-style: italic;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+
+  .abstract {
+    font-size: 17px;
+    margin: 12px 0;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin: 6px 0 0;
+  }
+
+  .links a,
+  .toggle {
+    text-decoration: none;
+    color: var(--accent);
+  }
+
+  details summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details[open] .toggle {
+    color: var(--ink);
+  }
+
+  .entries {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .entry + .entry {
+    margin-top: 24px;
+  }
+
+  .ra {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ra li {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 17px;
+  }
+
+  .ra li:last-child {
+    border-bottom: 0;
+  }
+
+  @media (min-width: 720px) {
+    .ra li {
+      grid-template-columns: 9.5rem 1fr auto;
+      align-items: baseline;
+    }
+  }
+
+  .ra-who {
+    font-weight: 600;
+  }
+
+  .ra-who a {
+    color: var(--ink);
+  }
+
+  .teaser {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  @media (min-width: 720px) {
+    .teaser {
+      gap: 20px;
+    }
+  }
+
+  .teaser a {
+    display: grid;
+    gap: 8px;
+    text-decoration: none;
+  }
+
+  .wave {
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    padding: 0 14%;
+    background: #15181c;
+    border-radius: 2px;
+  }
+
+  .wave svg {
+    width: 100%;
+    height: 40%;
+    fill: #6fa9c2;
+  }
+
+  .teaser a:hover .meta {
+    color: var(--accent);
+  }
+</style>

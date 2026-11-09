@@ -1,0 +1,69 @@
+# ─── Research entries. One item per paper or project. ───
+# section: wip | publication | ra
+# links: only list the ones that exist; each shows as a [Label] link.
+# order: lower numbers show first within a section.
+
+- id: water-markets
+  section: wip
+  order: 1
+  title: Water Markets and Farm Dynamics in the Murray–Darling Basin
+  status: Work in progress · draft coming 2027
+  updated: 2026-10-25
+  # DRAFT — to revise. Bracketed parts need your input.
+  abstract: >-
+    Australia's southern Murray–Darling Basin runs one of the world's largest
+    water markets. Farmers trade both seasonal allocations and permanent
+    entitlements of differing reliability. I build a dynamic model of irrigated
+    farms that choose crops, water use, entitlement holdings and borrowing
+    under uncertain allocations, with perennial crops that must be watered to
+    survive drought. Prices for allocations and entitlements clear in
+    equilibrium. I estimate the model with field-level land-use data from CSIRO
+    and Victorian entitlement market records, and use it to measure [the
+    counterfactual question].
+  links: []
+
+- id: wisconsin-lawsuits
+  section: publication
+  order: 1
+  title: Hospital Lawsuits Over Unpaid Bills Increased By 37 Percent In Wisconsin From 2001 To 2018
+  coauthors:
+    - name: Zack Cooper
+    - name: Neale Mahoney
+  venue: Health Affairs 40(12)
+  year: 2021
+  abstract: >-
+    Using Wisconsin circuit court records covering 125 hospitals and 42,844
+    filings, we find that hospital lawsuits against patients over unpaid bills
+    rose from 1.12 to 1.53 per 1,000 residents between 2001 and 2018. Suits
+    were concentrated: 10% of hospitals filed more than 40% of cases in
+    2014–2018.
+  links:
+    - label: Article
+      url: https://www.healthaffairs.org/doi/abs/10.1377/hlthaff.2021.01130
+    - label: WSJ
+      url: https://www.wsj.com/health/healthcare/hospitals-in-wisconsin-pursued-medical-debt-collection-widely-but-unevenly-study-finds-11638825132
+
+- id: ra-hsiao
+  section: ra
+  order: 1
+  title: Demand for critical minerals; political economy of the energy transition
+  coauthors:
+    - name: Allan Hsiao
+      url: https://allanhsiao.com/
+  venue: Stanford · 2025–
+
+- id: ra-cooper
+  section: ra
+  order: 2
+  title: Vertical integration in healthcare; medical debt litigation
+  coauthors:
+    - name: Zack Cooper
+  venue: Yale · 2020–2024
+
+- id: ra-kortum
+  section: ra
+  order: 3
+  title: International carbon taxation with intermediate goods
+  coauthors:
+    - name: Samuel Kortum
+  venue: Yale · 2023

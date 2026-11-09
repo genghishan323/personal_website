@@ -1,0 +1,236 @@
+---
+import Base from '../layouts/Base.astro';
+import Media from '../components/Media.astro';
+import { getCollection, render } from 'astro:content';
+
+const all = (await getCollection('studio')).sort((a, b) => a.data.order - b.data.order);
+const photos = all.filter((s) => s.data.medium === 'photography');
+const ceramics = all.filter((s) => s.data.medium === 'ceramics');
+const sound = await Promise.all(
+  all.filter((s) => s.data.medium === 'sound').map(async (s) => ({ ...s, Notes: (await render(s)).Content, hasNotes: Boolean(s.body?.trim()) })),
+);
+
+const metaLine = (d: { location?: string; year?: number }) => [d.location, d.year].filter(Boolean).join(' · ');
+// Captions are plain text; *words in asterisks* render in italics (for titles of works).
+const caption = (s: string) =>
+  s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+---
+
+<Base title="Studio" description="Photography, ceramics and sound design by James Han." theme="studio">
+  <section class="intro">
+    <h1>Studio</h1>
+    <p class="prose">Photography, ceramics and sound design — the work I make away from the models.</p>
+    <nav class="jump meta" aria-label="Studio sections">
+      <a href="#photography">Photography</a>
+      <a href="#ceramics">Ceramics</a>
+      <a href="#sound">Sound design</a>
+    </nav>
+  </section>
+
+  <section id="photography" class="section" aria-labelledby="photo-h">
+    <h2 id="photo-h" class="label">Photography</h2>
+    <ul class="gallery">
+      {
+        photos.map((s, i) => (
+          <li>
+            <figure>
+              <Media image={s.data.image} alt={s.data.alt} aspect={s.data.aspect} label="Photograph" eager={i < 2} />
+              <figcaption>
+                <span class="piece">{s.data.title}</span>
+                {metaLine(s.data) && <span class="meta">{metaLine(s.data)}</span>}
+                {s.data.caption && <span class="meta" set:html={caption(s.data.caption)} />}
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section id="ceramics" class="section" aria-labelledby="ceramics-h">
+    <h2 id="ceramics-h" class="label">Ceramics</h2>
+    <ul class="gallery">
+      {
+        ceramics.map((s) => (
+          <li>
+            <figure>
+              <Media image={s.data.image} alt={s.data.alt} aspect={s.data.aspect} label="Ceramic piece" />
+              <figcaption>
+                <span class="piece">{s.data.title}</span>
+                {metaLine(s.data) && <span class="meta">{metaLine(s.data)}</span>}
+                {s.data.caption && <span class="meta" set:html={caption(s.data.caption)} />}
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section id="sound" class="section" aria-labelledby="sound-h">
+    <h2 id="sound-h" class="label">Sound design</h2>
+    <ul class="tracks">
+      {
+        sound.map((s) => (
+          <li class:list={['track', { 'has-cover': s.data.image }]}>
+            {s.data.image && (
+              <div class="cover">
+                <Media image={s.data.image} alt={s.data.alt ?? ''} aspect="1 / 1" label="Cover" sizes="96px" />
+              </div>
+            )}
+            <div class="track-body">
+              <span class="piece">{s.data.title}</span>
+              {metaLine(s.data) && <span class="meta">{metaLine(s.data)}</span>}
+              {s.data.caption && <p class="meta" set:html={caption(s.data.caption)} />}
+              {s.data.audio ? (
+                <audio controls preload="none" src={s.data.audio}>
+                  <a href={s.data.audio}>Download audio</a>
+                </audio>
+              ) : (
+                <div class="audio-ph meta" aria-label="Audio placeholder">
+                  Audio file to come
+                </div>
+              )}
+              {s.hasNotes && (
+                <details class="notes">
+                  <summary class="meta">Notes</summary>
+                  <div class="meta">
+                    <s.Notes />
+                  </div>
+                </details>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .intro {
+    padding: 32px 0 40px;
+  }
+
+  @media (min-width: 720px) {
+    .intro {
+      padding-top: 56px;
+    }
+  }
+
+  h1 {
+    font-size: clamp(34px, 6vw, 46px);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+  }
+
+  /* Masonry-style columns so mixed aspect ratios pack without gaps. */
+  .gallery {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    columns: 1;
+    column-gap: 24px;
+  }
+
+  .gallery li {
+    break-inside: avoid;
+    margin-bottom: 32px;
+  }
+
+  @media (min-width: 560px) {
+    .gallery {
+      columns: 2;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .gallery {
+      columns: 3;
+    }
+  }
+
+  figure {
+    margin: 0;
+  }
+
+  figcaption {
+    display: grid;
+    gap: 2px;
+    margin-top: 10px;
+    max-width: var(--measure);
+  }
+
+  .piece {
+    font-weight: 600;
+    font-size: 17px;
+  }
+
+  .tracks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: var(--measure);
+  }
+
+  .track {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .track.has-cover {
+    grid-template-columns: 72px 1fr;
+  }
+
+  @media (min-width: 720px) {
+    .track.has-cover {
+      grid-template-columns: 96px 1fr;
+      gap: 24px;
+    }
+  }
+
+  .track:last-child {
+    border-bottom: 0;
+  }
+
+  .track-body {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .track-body p {
+    margin: 0;
+  }
+
+  audio {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .audio-ph {
+    margin-top: 8px;
+    padding: 10px 14px;
+    border: 1px dashed var(--rule);
+    border-radius: 999px;
+  }
+
+  .notes summary {
+    cursor: pointer;
+    margin-top: 6px;
+  }
+</style>
