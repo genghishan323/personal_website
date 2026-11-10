@@ -6,7 +6,7 @@ department: Stanford University
 email: jamhan@stanford.edu
 
 # One sentence shown large in the hero.
-agenda: I study industrial organization in environmental markets — how markets for water, energy and minerals allocate scarce resources, and how to design them better.
+agenda: I study industrial organization in environmental markets. My current work focuses on how markets for water shape agricultural choices in Southern Australia.
 
 # Optional: put a photo next to this file (e.g. ./headshot.jpg) and uncomment.
 headshot: ./headshot.jpg
